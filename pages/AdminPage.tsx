@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Slot, Teacher, Teachers } from '../types';
-import api from '../services/mockApi';
+import api from '../services/supabaseApi';
+import { signInTeacher, signOutTeacher, onAuthStateChange } from '../services/supabaseClient';
+import { supabase } from '../services/supabaseClient';
 
 type AdminTab = 'overview' | 'manage-slots';
 
@@ -47,22 +49,29 @@ const AdminLogin: React.FC<{ onLogin: (teacher: Teacher) => void }> = ({ onLogin
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        
-        const correctPassword = selectedTeacher === 'Daemen' ? 'EvaAdmin' : 'MahrnordAdmin';
 
-        setTimeout(() => {
-            if (password === correctPassword) {
+        try {
+            const { data, error } = await signInTeacher(selectedTeacher, password);
+
+            if (error) {
+                setError('Ongeldig wachtwoord voor de geselecteerde docent.');
+                return;
+            }
+
+            if (data.user) {
                 sessionStorage.setItem(SESSION_KEY, selectedTeacher);
                 onLogin(selectedTeacher);
-            } else {
-                setError('Ongeldig wachtwoord voor de geselecteerde docent.');
             }
+        } catch (err) {
+            setError('Er is een fout opgetreden bij het inloggen.');
+            console.error('Login error:', err);
+        } finally {
             setIsLoading(false);
-        }, 300);
+        }
     };
 
     return (
@@ -399,13 +408,33 @@ const AdminPage: React.FC = () => {
     const [loggedInTeacher, setLoggedInTeacher] = useState<Teacher | null>(sessionStorage.getItem(SESSION_KEY) as Teacher | null);
     const [activeTab, setActiveTab] = useState<AdminTab>('overview');
 
-    if (!loggedInTeacher) {
-        return <AdminLogin onLogin={(teacher) => setLoggedInTeacher(teacher)} />;
-    }
-
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        await signOutTeacher();
         sessionStorage.removeItem(SESSION_KEY);
         setLoggedInTeacher(null);
+    };
+
+    useEffect(() => {
+        const setupAuthListener = async () => {
+            const { data: { subscription } } = await onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT' || !session) {
+                    handleLogout();
+                }
+            });
+
+            return () => {
+                subscription.unsubscribe();
+            };
+        };
+
+        const cleanup = setupAuthListener();
+        return () => {
+            cleanup.then(unsubscribe => unsubscribe());
+        };
+    }, [loggedInTeacher]);
+
+    if (!loggedInTeacher) {
+        return <AdminLogin onLogin={(teacher) => setLoggedInTeacher(teacher)} />;
     }
     
     const teacherName = loggedInTeacher === 'Daemen' ? 'Mevrouw Daemen' : 'Meneer Martina';
