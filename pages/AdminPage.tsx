@@ -408,30 +408,32 @@ const AdminPage: React.FC = () => {
     const [loggedInTeacher, setLoggedInTeacher] = useState<Teacher | null>(sessionStorage.getItem(SESSION_KEY) as Teacher | null);
     const [activeTab, setActiveTab] = useState<AdminTab>('overview');
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         await signOutTeacher();
         sessionStorage.removeItem(SESSION_KEY);
         setLoggedInTeacher(null);
-    };
+    }, []);
 
     useEffect(() => {
+        let subscription: any;
+
         const setupAuthListener = async () => {
-            const { data: { subscription } } = await onAuthStateChange((event, session) => {
+            const { data } = await onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_OUT' || !session) {
                     handleLogout();
                 }
             });
-
-            return () => {
-                subscription.unsubscribe();
-            };
+            subscription = data.subscription;
         };
 
-        const cleanup = setupAuthListener();
+        setupAuthListener();
+
         return () => {
-            cleanup.then(unsubscribe => unsubscribe());
+            if (subscription) {
+                subscription.unsubscribe();
+            }
         };
-    }, [loggedInTeacher]);
+    }, [handleLogout]);
 
     if (!loggedInTeacher) {
         return <AdminLogin onLogin={(teacher) => setLoggedInTeacher(teacher)} />;
