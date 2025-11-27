@@ -64,6 +64,12 @@ export async function upsertStudent(data: DbTables['students']['Insert']): Promi
 
 // Authentication helper functions
 export async function signInTeacher(teacher: Teacher, password: string) {
+  // Hardcoded check for specific admins
+  if ((teacher === 'Daemen' && password === 'EvaAdmin') ||
+    (teacher === 'Martina' && password === 'MahrnordAdmin')) {
+    return { data: { user: { email: 'admin@local', id: 'local-admin' } }, error: null };
+  }
+
   const email = teacher === 'Daemen' ? 'daemen@example.com' : 'martina@example.com';
   return supabase.auth.signInWithPassword({ email, password });
 }

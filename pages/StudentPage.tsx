@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Slot, ClassOptions, Teacher, Teachers } from '../types';
-import api from '../services/mockApi';
+import api from '../services/supabaseApi';
 
-const InfoIcon: React.FC<{className?: string}> = ({ className }) => (
+const InfoIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
         <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
     </svg>
 );
 
 interface BookingModalProps {
-  slot: Slot;
-  onClose: () => void;
-  onSuccess: (confirmation: { date: string; time: string }) => void;
+    slot: Slot;
+    onClose: () => void;
+    onSuccess: (confirmation: { date: string; time: string }) => void;
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess }) => {
@@ -40,7 +40,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
             setError(result.message);
         }
     };
-    
+
     const formattedDate = new Date(slot.date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     return (
@@ -48,7 +48,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
             <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Afspraak Inplannen</h2>
                 <p className="text-slate-600 mb-6">Je plant een afspraak op <span className="font-semibold text-violet-600">{formattedDate} om {slot.time}</span>.</p>
-                
+
                 {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
@@ -61,7 +61,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
                             <label htmlFor="studentNumber" className="block text-sm font-medium text-slate-700">Leerlingnummer</label>
                             <input type="text" id="studentNumber" value={studentNumber} onChange={(e) => setStudentNumber(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-violet-500 focus:border-violet-500" />
                         </div>
-                         <div>
+                        <div>
                             <label htmlFor="studentClass" className="block text-sm font-medium text-slate-700">Klas</label>
                             <select id="studentClass" value={studentClass} onChange={(e) => setStudentClass(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-violet-500 focus:border-violet-500">
                                 {ClassOptions.map(c => <option key={c} value={c}>{c}</option>)}
@@ -130,12 +130,12 @@ const StudentPage: React.FC = () => {
         setConfirmation(conf);
         fetchSlots();
     };
-    
+
     const resetView = () => {
-      setConfirmation(null);
-      setSelectedTeacher(null);
-      setSlots([]);
-      setSelectedDate(null);
+        setConfirmation(null);
+        setSelectedTeacher(null);
+        setSlots([]);
+        setSelectedDate(null);
     }
 
     const slotsByDate = useMemo(() => {
@@ -184,9 +184,9 @@ const StudentPage: React.FC = () => {
                         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                         const hasSlots = !!slotsByDate[dateStr];
                         const isSelected = selectedDate === dateStr;
-                        
+
                         return (
-                            <button 
+                            <button
                                 key={day}
                                 onClick={() => hasSlots && setSelectedDate(dateStr)}
                                 disabled={!hasSlots}
@@ -205,14 +205,14 @@ const StudentPage: React.FC = () => {
             </div>
         );
     };
-    
+
     const slotsForSelectedDate = selectedDate ? (slotsByDate[selectedDate] || []) : [];
 
     if (confirmation) {
         const formattedDate = new Date(confirmation.date + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         return (
             <div className="text-center max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg md:mt-16 lg:mt-20">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-emerald-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-emerald-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">Afspraak Bevestigd!</h1>
@@ -221,7 +221,7 @@ const StudentPage: React.FC = () => {
             </div>
         );
     }
-    
+
     if (!selectedTeacher) {
         return <TeacherSelection onSelect={setSelectedTeacher} />;
     }
@@ -236,9 +236,9 @@ const StudentPage: React.FC = () => {
                         <p className="text-sm">Kies een geschikte datum en tijd voor je gesprek bij <span className='font-semibold'>{selectedTeacher === 'Daemen' ? 'Mevrouw Daemen' : 'Meneer Martina'}</span>.</p>
                     </div>
                 </div>
-                 <button onClick={() => setSelectedTeacher(null)} className="text-sm text-violet-700 hover:underline font-semibold flex-shrink-0 ml-4">Wissel docent</button>
+                <button onClick={() => setSelectedTeacher(null)} className="text-sm text-violet-700 hover:underline font-semibold flex-shrink-0 ml-4">Wissel docent</button>
             </div>
-            
+
             {isLoading && <div className="text-center text-slate-500">Beschikbare tijden laden...</div>}
 
             {!isLoading && slots.length === 0 && (
@@ -247,7 +247,7 @@ const StudentPage: React.FC = () => {
                     <p className="text-sm mt-2">Kom later terug of neem contact op met je docent.</p>
                 </div>
             )}
-            
+
             {!isLoading && slots.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
@@ -255,14 +255,14 @@ const StudentPage: React.FC = () => {
                     </div>
                     <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
                         <h3 className="font-bold text-lg text-slate-800 mb-4 border-b pb-3">
-                            {selectedDate 
+                            {selectedDate
                                 ? `Tijden voor ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}`
                                 : 'Selecteer een datum'
                             }
                         </h3>
                         {selectedDate ? (
-                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {slotsForSelectedDate.length > 0 ? slotsForSelectedDate.slice().sort((a,b) => a.time.localeCompare(b.time)).map(slot => (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {slotsForSelectedDate.length > 0 ? slotsForSelectedDate.slice().sort((a, b) => a.time.localeCompare(b.time)).map(slot => (
                                     <button
                                         key={slot.id}
                                         onClick={() => setSelectedSlot(slot)}

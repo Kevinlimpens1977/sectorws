@@ -49,7 +49,7 @@ const api = {
 
   bookSlot: async (slotId: number, studentData: Omit<Student, 'id'>): Promise<{ success: boolean; message: string }> => {
     try {
-      // Check for existing active booking
+      // Check for existing active booking by student number
       const { data: existingBookings } = await supabase
         .from('slots')
         .select('*')
@@ -57,7 +57,27 @@ const api = {
         .eq('completed', false);
 
       if (existingBookings && existingBookings.length > 0) {
-        return { success: false, message: 'Je hebt al een gepland gesprek. Wacht tot dit is afgerond.' };
+        return { success: false, message: 'Dit leerlingnummer heeft al een geplande afspraak.' };
+      }
+
+      // Check for existing active booking by NAME (case-insensitive)
+      const { data: studentsWithName } = await supabase
+        .from('students')
+        .select('student_number')
+        .ilike('name', studentData.name);
+
+      if (studentsWithName && studentsWithName.length > 0) {
+        const studentNumbers = studentsWithName.map(s => s.student_number);
+        // Check if any of these student numbers have an active slot
+        const { data: bookingByName } = await supabase
+          .from('slots')
+          .select('*')
+          .in('student_number', studentNumbers)
+          .eq('completed', false);
+
+        if (bookingByName && bookingByName.length > 0) {
+          return { success: false, message: 'Er staat al een afspraak op deze naam.' };
+        }
       }
 
       // Check slot availability
@@ -219,6 +239,24 @@ const api = {
       console.error('Error deleting slot:', error);
       return { success: false, message: 'Er is een fout opgetreden bij het verwijderen van het tijdslot.' };
     }
+  },
+
+  findAppointmentByStudentNumber: async (studentNumber: string): Promise<Slot | null> => {
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .eq('student_number', studentNumber)
+      .eq('completed', false)
+      .single();
+
+    if (error) {
+      if (error.code !== 'PGRST116') { // PGRST116 is 'no rows returned'
+        console.error('Error finding appointment:', error);
+      }
+      return null;
+    }
+
+    return data as Slot;
   }
 };
 

@@ -23,21 +23,21 @@ const ArrowRightIcon: React.FC = () => (
 
 // --- Helper Functions for Date Management ---
 const getStartOfWeek = (date: Date): Date => {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-  return new Date(d.setDate(diff));
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
 };
 
 const toYYYYMMDD = (date: Date): string => {
-  return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0];
 };
 
 const getWeekNumber = (d: Date): [number, number] => {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
     return [d.getUTCFullYear(), weekNo];
 }
 
@@ -80,7 +80,7 @@ const AdminLogin: React.FC<{ onLogin: (teacher: Teacher) => void }> = ({ onLogin
                 <h1 className="text-2xl font-bold text-center mb-6 text-slate-900">Docent Login</h1>
                 {error && <p className="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-sm">{error}</p>}
                 <form onSubmit={handleLogin} className="space-y-4">
-                     <div>
+                    <div>
                         <label htmlFor="teacher" className="block text-sm font-medium text-slate-700">Docent</label>
                         <select
                             id="teacher"
@@ -122,7 +122,7 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
     const [year, weekNumber] = getWeekNumber(startOfWeek);
 
     const ALL_DAY_TIMES: string[] = [];
-    for (let hour = 9; hour < 17; hour++) { 
+    for (let hour = 9; hour < 17; hour++) {
         for (let minute = 0; minute < 60; minute += 30) {
             if (hour === 16 && minute === 30) continue;
             const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
@@ -142,7 +142,7 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
     const fetchSlotsForWeek = useCallback(async () => {
         setIsLoading(true);
         setMessage(null);
-        
+
         const weekPromises = weekDays.map(day => {
             const dateStr = toYYYYMMDD(day.date);
             return api.getSlotsForDate(dateStr, teacher);
@@ -173,7 +173,7 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
         newDate.setDate(currentDate.getDate() + (direction === 'prev' ? -7 : 7));
         setCurrentDate(newDate);
     };
-    
+
     const handleSlotClick = async (date: string, time: string) => {
         setMessage(null);
         const result = await api.toggleOrCreateSlot(date, time, teacher);
@@ -190,8 +190,8 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
                 } else {
                     daySlots.push(updatedSlot);
                 }
-                
-                daySlots.sort((a,b) => a.time.localeCompare(b.time));
+
+                daySlots.sort((a, b) => a.time.localeCompare(b.time));
                 newWeekSlots[date] = daySlots;
                 return newWeekSlots;
             });
@@ -204,18 +204,18 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
         <div className="bg-white p-6 rounded-2xl shadow-lg">
             <h2 className="text-xl font-bold mb-2 text-slate-900">Tijdsloten Beheren</h2>
             <p className="text-slate-600 mb-6 text-sm">Klik op een tijdslot om deze te openen (groen) of te sluiten (paars). Rode sloten zijn al geboekt.</p>
-            
+
             <div className="flex items-center justify-between mb-4 bg-violet-100/70 p-3 rounded-xl">
-                <button 
-                    onClick={() => handleWeekChange('prev')} 
+                <button
+                    onClick={() => handleWeekChange('prev')}
                     className="p-2 bg-white border-2 border-violet-300 text-violet-500 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                     aria-label="Vorige week"
                 >
                     <ArrowLeftIcon />
                 </button>
                 <h3 className="text-lg font-semibold text-violet-900">Week {weekNumber}, {year}</h3>
-                <button 
-                    onClick={() => handleWeekChange('next')} 
+                <button
+                    onClick={() => handleWeekChange('next')}
                     className="p-2 bg-white border-2 border-violet-300 text-violet-500 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                     aria-label="Volgende week"
                 >
@@ -243,7 +243,7 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
                                     <span className="block text-xl font-bold">{date.getDate()}</span>
                                 </div>
                                 <div className="space-y-2">
-                                   {ALL_DAY_TIMES.map(time => {
+                                    {ALL_DAY_TIMES.map(time => {
                                         const slot = slotsForThisDay.find(s => s.time === time);
                                         const isBooked = !!slot?.student_number;
                                         const isAvailable = slot?.available ?? false;
@@ -258,7 +258,7 @@ const ManageSlotsTab: React.FC<{ teacher: Teacher }> = ({ teacher }) => {
                                         }
 
                                         return (
-                                            <button 
+                                            <button
                                                 key={time}
                                                 onClick={() => handleSlotClick(dateStr, time)}
                                                 disabled={isBooked}
@@ -295,8 +295,8 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
     useEffect(() => {
         fetchAppointments();
     }, [fetchAppointments]);
-    
-    const handleUpdate = async (slotId: number, details: {present: boolean, notes: string, completed: boolean}) => {
+
+    const handleUpdate = async (slotId: number, details: { present: boolean, notes: string, completed: boolean }) => {
         await api.updateAppointment(slotId, details);
         setEditingSlot(null);
         fetchAppointments();
@@ -310,9 +310,9 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
         <div className="bg-white p-6 rounded-2xl shadow-lg">
             <h2 className="text-xl font-bold mb-4 text-slate-900">Overzicht Afspraken</h2>
             <div className="mb-4">
-                 <label htmlFor="filterDate" className="block text-sm font-medium text-slate-700">Filter op datum</label>
-                <input 
-                    type="date" 
+                <label htmlFor="filterDate" className="block text-sm font-medium text-slate-700">Filter op datum</label>
+                <input
+                    type="date"
                     id="filterDate"
                     value={filterDate}
                     onChange={(e) => setFilterDate(e.target.value)}
@@ -320,10 +320,10 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
                 />
                 <button onClick={() => setFilterDate('')} className="ml-2 text-sm text-violet-600 hover:underline">Reset</button>
             </div>
-            
+
             {isLoading && <p>Afspraken laden...</p>}
             {!isLoading && filteredAppointments.length === 0 && <p className="text-slate-500 mt-4">Geen afspraken gevonden die voldoen aan het filter.</p>}
-            
+
             {!isLoading && filteredAppointments.length > 0 && (
                 <div className="overflow-x-auto -mx-6 -mb-6 rounded-b-2xl">
                     <table className="min-w-full">
@@ -337,7 +337,7 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
                         </thead>
                         <tbody className="bg-white">
                             {filteredAppointments.map((app, index) => (
-                                <tr key={app.id} className={`border-t border-slate-200 ${index === filteredAppointments.length -1 ? 'border-b-0' : ''}`}>
+                                <tr key={app.id} className={`border-t border-slate-200 ${index === filteredAppointments.length - 1 ? 'border-b-0' : ''}`}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{app.date} {app.time}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         <div className="font-medium text-slate-800">{app.studentInfo?.name} ({app.studentInfo?.class})</div>
@@ -345,7 +345,7 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         {app.completed ? <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">Afgerond</span>
-                                        : <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Gepland</span>}
+                                            : <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Gepland</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button onClick={() => setEditingSlot(app)} className="text-violet-600 hover:text-violet-900">Beheren</button>
@@ -362,7 +362,7 @@ const AppointmentsOverviewTab: React.FC<{ teacher: Teacher }> = ({ teacher }) =>
 };
 
 // --- Modal for editing appointments ---
-const AppointmentModal: React.FC<{slot: Slot, onClose: () => void, onSave: (slotId: number, details: {present: boolean, notes: string, completed: boolean}) => void}> = ({ slot, onClose, onSave }) => {
+const AppointmentModal: React.FC<{ slot: Slot, onClose: () => void, onSave: (slotId: number, details: { present: boolean, notes: string, completed: boolean }) => void }> = ({ slot, onClose, onSave }) => {
     const [present, setPresent] = useState(slot.present);
     const [notes, setNotes] = useState(slot.notes || '');
     const [completed, setCompleted] = useState(slot.completed);
@@ -377,7 +377,7 @@ const AppointmentModal: React.FC<{slot: Slot, onClose: () => void, onSave: (slot
                 <h3 className="text-xl font-bold mb-4 text-slate-900">Afspraak beheren: {slot.studentInfo?.name}</h3>
                 <p className="text-sm text-slate-500 mb-2">Datum: {slot.date} om {slot.time}</p>
                 <p className="text-sm text-slate-500 mb-4">Onderwerp: {slot.studentInfo?.topic}</p>
-                
+
                 <div className="space-y-4">
                     <div>
                         <label htmlFor="notes" className="block text-sm font-medium text-slate-700">Aantekeningen</label>
@@ -387,7 +387,7 @@ const AppointmentModal: React.FC<{slot: Slot, onClose: () => void, onSave: (slot
                         <input id="present" type="checkbox" checked={present} onChange={e => setPresent(e.target.checked)} className="h-4 w-4 text-violet-600 border-slate-300 rounded focus:ring-violet-500" />
                         <label htmlFor="present" className="text-sm font-medium text-slate-700">Leerling was aanwezig</label>
                     </div>
-                     <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
                         <input id="completed" type="checkbox" checked={completed} onChange={e => setCompleted(e.target.checked)} className="h-4 w-4 text-violet-600 border-slate-300 rounded focus:ring-violet-500" />
                         <label htmlFor="completed" className="text-sm font-medium text-slate-700">Gesprek afronden</label>
                     </div>
@@ -419,7 +419,7 @@ const AdminPage: React.FC = () => {
 
         const setupAuthListener = async () => {
             const { data } = await onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_OUT' || !session) {
+                if (event === 'SIGNED_OUT') {
                     handleLogout();
                 }
             });
@@ -438,19 +438,19 @@ const AdminPage: React.FC = () => {
     if (!loggedInTeacher) {
         return <AdminLogin onLogin={(teacher) => setLoggedInTeacher(teacher)} />;
     }
-    
+
     const teacherName = loggedInTeacher === 'Daemen' ? 'Mevrouw Daemen' : 'Meneer Martina';
 
     return (
         <div className="md:mt-8">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                     <h1 className="text-3xl font-bold text-slate-900">Docenten Dashboard</h1>
-                     <p className="text-slate-600 font-semibold">{teacherName}</p>
+                    <h1 className="text-3xl font-bold text-slate-900">Docenten Dashboard</h1>
+                    <p className="text-slate-600 font-semibold">{teacherName}</p>
                 </div>
                 <button onClick={handleLogout} className="text-sm text-slate-600 hover:text-red-500 font-medium">Uitloggen</button>
             </div>
-            
+
             <div className="mb-6">
                 <div className="inline-flex bg-violet-100/70 p-1.5 rounded-xl">
                     <nav className="flex space-x-2">
