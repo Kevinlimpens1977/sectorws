@@ -19,7 +19,7 @@ const TeacherSelection: React.FC<TeacherSelectionProps> = ({ onSelect }) => {
                 <div className="flex justify-center mb-6">
                     <div className="bg-violet-600 rounded-2xl p-3 shadow-lg transform rotate-3 hover:rotate-6 transition-transform duration-300">
                         <img
-                            src="/logo/paco_planner_profiel.png"
+                            src="https://iyyxtrwcluuhorwcdzbg.supabase.co/storage/v1/object/public/logos/paco_planner_profiel.png"
                             alt="Paco Logo"
                             className="w-36 h-36 object-cover rounded-xl bg-white"
                         />

@@ -18,7 +18,7 @@ const Header: React.FC = () => {
                     <Link to="/" className="flex items-center gap-3 group">
                         <div className="bg-violet-600 rounded-lg p-1.5 transition-transform group-hover:scale-105 group-hover:rotate-3 shadow-sm overflow-hidden">
                             <img
-                                src="/logo/paco_planner_profiel.png"
+                                src="https://iyyxtrwcluuhorwcdzbg.supabase.co/storage/v1/object/public/logos/paco_planner_profiel.png"
                                 alt="Paco Logo"
                                 className="w-6 h-6 object-cover"
                             />
