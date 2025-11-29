@@ -25,6 +25,7 @@ const StudentPage: React.FC = () => {
         if (!selectedTeacher) return;
         setIsLoading(true);
         const availableSlots = await api.getAvailableSlots(selectedTeacher);
+        console.log('Fetched slots for student:', availableSlots);
         setSlots(availableSlots);
         setIsLoading(false);
     }, [selectedTeacher]);

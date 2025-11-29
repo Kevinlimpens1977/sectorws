@@ -15,36 +15,79 @@ const api = {
       .eq('available', true);
 
     if (error) throw error;
-    return (data || []) as Slot[];
+    return (data || []).map((slot: SlotRow) => ({
+      ...slot,
+      time: slot.time ? slot.time.substring(0, 5) : '00:00' // Normalize time to HH:MM with safety check
+    })) as Slot[];
   },
 
   getAllAppointments: async (teacher: Teacher): Promise<Slot[]> => {
-    const { data, error } = await supabase
-      .from('slots_with_students')
-      .select('*')
-      .eq('teacher', teacher)
-      .eq('available', false)
-      .not('student_number', 'is', null);
+    try {
+      // Query slots table directly with student information
+      const { data: slotsData, error: slotsError } = await supabase
+        .from('slots')
+        .select('*')
+        .eq('teacher', teacher)
+        .eq('available', false)
+        .not('student_number', 'is', null);
 
-    if (error) throw error;
-    return (data || []).map((slot: SlotWithStudent) => ({
-      id: slot.id,
-      date: slot.date,
-      time: slot.time,
-      teacher: slot.teacher,
-      available: slot.available,
-      student_number: slot.student_number,
-      present: slot.present,
-      notes: slot.notes,
-      completed: slot.completed,
-      studentInfo: slot.student_number ? {
-        id: 0,
-        student_number: slot.student_number,
-        name: slot.student_name || '',
-        class: slot.student_class || '',
-        topic: slot.student_topic || ''
-      } : undefined
-    }));
+      if (slotsError) {
+        console.error('Error fetching slots:', slotsError);
+        throw slotsError;
+      }
+
+      if (!slotsData || slotsData.length === 0) {
+        return [];
+      }
+
+      // Get unique student numbers
+      const studentNumbers = [...new Set(slotsData.map((slot: SlotRow) => slot.student_number).filter(Boolean))];
+
+      // Fetch student information
+      const { data: studentsData, error: studentsError } = await supabase
+        .from('students')
+        .select('*')
+        .in('student_number', studentNumbers);
+
+      if (studentsError) {
+        console.error('Error fetching students:', studentsError);
+        // Continue without student info if there's an error
+      }
+
+      // Create a map of student_number to student data
+      const studentsMap = new Map();
+      if (studentsData) {
+        studentsData.forEach((student: StudentRow) => {
+          studentsMap.set(student.student_number, student);
+        });
+      }
+
+      // Combine slots with student information
+      return slotsData.map((slot: SlotRow) => {
+        const student = slot.student_number ? studentsMap.get(slot.student_number) : null;
+        return {
+          id: slot.id,
+          date: slot.date,
+          time: slot.time ? slot.time.substring(0, 5) : '00:00',
+          teacher: slot.teacher,
+          available: slot.available,
+          student_number: slot.student_number,
+          present: slot.present,
+          notes: slot.notes,
+          completed: slot.completed,
+          studentInfo: student ? {
+            id: student.id || 0,
+            student_number: student.student_number,
+            name: student.name || '',
+            class: student.class || '',
+            topic: student.topic || ''
+          } : undefined
+        };
+      });
+    } catch (error) {
+      console.error('Error in getAllAppointments:', error);
+      throw error;
+    }
   },
 
   bookSlot: async (slotId: number, studentData: Omit<Student, 'id'>): Promise<{ success: boolean; message: string }> => {
@@ -204,6 +247,28 @@ const api = {
     }
   },
 
+  cancelBooking: async (slotId: number): Promise<{ success: boolean; message: string }> => {
+    try {
+      const { error } = await supabase
+        .from('slots')
+        .update({
+          student_number: null,
+          available: true,
+          present: false,
+          completed: false,
+          notes: null
+        } as any)
+        .eq('id', slotId);
+
+      if (error) throw error;
+
+      return { success: true, message: 'Afspraak geannuleerd en tijdslot weer vrijgegeven.' };
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      return { success: false, message: 'Er is een fout opgetreden bij het annuleren van de afspraak.' };
+    }
+  },
+
   getSlotsForDate: async (date: string, teacher: Teacher): Promise<Slot[]> => {
     const { data, error } = await supabase
       .from('slots')
@@ -212,7 +277,10 @@ const api = {
       .eq('teacher', teacher);
 
     if (error) throw error;
-    return (data || []) as Slot[];
+    return (data || []).map((slot: SlotRow) => ({
+      ...slot,
+      time: slot.time ? slot.time.substring(0, 5) : '00:00' // Normalize time to HH:MM with safety check
+    })) as Slot[];
   },
 
   deleteSlot: async (slotId: number): Promise<{ success: boolean; message: string }> => {

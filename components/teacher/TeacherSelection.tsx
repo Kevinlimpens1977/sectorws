@@ -17,7 +17,13 @@ const TeacherSelection: React.FC<TeacherSelectionProps> = ({ onSelect }) => {
                 className="text-center mb-12 max-w-2xl"
             >
                 <div className="flex justify-center mb-6">
-                    <AgendaIcon className="w-20 h-20 text-violet-600" />
+                    <div className="bg-violet-600 rounded-2xl p-3 shadow-lg transform rotate-3 hover:rotate-6 transition-transform duration-300">
+                        <img
+                            src="/logo/paco_planner_profiel.png"
+                            alt="Paco Logo"
+                            className="w-36 h-36 object-cover rounded-xl bg-white"
+                        />
+                    </div>
                 </div>
                 <h1 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
                     Planning Sectorwerkstuk

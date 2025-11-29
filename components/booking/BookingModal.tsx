@@ -33,18 +33,28 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
 
     const validateField = (field: keyof BookingFormData, value: string) => {
         try {
-            bookingSchema.shape[field].parse(value);
+            if (field === 'studentNumber') {
+                z.string()
+                    .min(5, 'Leerlingnummer moet minimaal 5 cijfers bevatten')
+                    .max(8, 'Leerlingnummer mag maximaal 8 cijfers bevatten')
+                    .regex(/^\d+$/, 'Leerlingnummer mag alleen cijfers bevatten')
+                    .parse(value);
+            } else {
+                bookingSchema.shape[field].parse(value);
+            }
+
             setErrors(prev => ({ ...prev, [field]: undefined }));
         } catch (error) {
             if (error instanceof z.ZodError) {
-                setErrors(prev => ({ ...prev, [field]: error.errors[0].message }));
+                setErrors(prev => ({ ...prev, [field]: error.issues[0].message }));
             }
         }
     };
 
     const handleChange = (field: keyof BookingFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        validateField(field, value);
+        // Removed immediate validation to prevent freezing/re-renders on every keystroke
+        // validateField(field, value); 
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -52,8 +62,17 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
         setGeneralError('');
 
         try {
+            // Define a local schema that includes the specific student number validation
+            // This overrides the general bookingSchema for this specific form submission
+            const extendedSchema = bookingSchema.extend({
+                studentNumber: z.string()
+                    .min(5, 'Leerlingnummer moet minimaal 5 cijfers bevatten')
+                    .max(8, 'Leerlingnummer mag maximaal 8 cijfers bevatten')
+                    .regex(/^\d+$/, 'Leerlingnummer mag alleen cijfers bevatten')
+            });
+
             // Validate all fields
-            bookingSchema.parse(formData);
+            extendedSchema.parse(formData);
 
             setIsLoading(true);
             const result = await api.bookSlot(slot.id, {
@@ -73,12 +92,15 @@ const BookingModal: React.FC<BookingModalProps> = ({ slot, onClose, onSuccess })
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const newErrors: Partial<Record<keyof BookingFormData, string>> = {};
-                error.errors.forEach(err => {
+                error.issues.forEach(err => {
                     if (err.path[0]) {
                         newErrors[err.path[0] as keyof BookingFormData] = err.message;
                     }
                 });
                 setErrors(newErrors);
+            } else {
+                console.error('Booking error:', error);
+                setGeneralError('Er is een onverwachte fout opgetreden. Probeer het later opnieuw.');
             }
         } finally {
             setIsLoading(false);

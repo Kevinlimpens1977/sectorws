@@ -8,27 +8,27 @@ export const AgendaIcon: React.FC<{ className?: string }> = ({ className }) => (
         xmlns="http://www.w3.org/2000/svg"
     >
         {/* Shadow Layer for 3D effect */}
-        <rect x="4" y="6" width="17" height="15" rx="2" className="text-black/20" transform="translate(1, 1)"/>
-        
+        <rect x="4" y="6" width="17" height="15" rx="2" className="text-black/20" transform="translate(1, 1)" />
+
         {/* Main Body */}
-        <rect x="3" y="5" width="18" height="16" rx="2" className="text-white" stroke="#4B5563" strokeWidth="1"/>
+        <rect x="3" y="5" width="18" height="16" rx="2" className="text-white" stroke="#4B5563" strokeWidth="1" />
 
         {/* Top Bar / Binding */}
-        <rect x="3" y="5" width="18" height="5" rx="2" ry="2" className="text-green-500"/>
-        
+        <rect x="3" y="5" width="18" height="5" rx="2" ry="2" className="text-green-500" />
+
         {/* Rings */}
-        <circle cx="8" cy="5.5" r="1.5" className="text-slate-600"/>
-        <circle cx="16" cy="5.5" r="1.5" className="text-slate-600"/>
+        <circle cx="8" cy="5.5" r="1.5" className="text-slate-600" />
+        <circle cx="16" cy="5.5" r="1.5" className="text-slate-600" />
 
         {/* Content placeholder */}
-        <rect x="7" y="12" width="10" height="2" rx="1" className="text-slate-300"/>
-        <rect x="7" y="16" width="7" height="2" rx="1" className="text-slate-300"/>
+        <rect x="7" y="12" width="10" height="2" rx="1" className="text-slate-300" />
+        <rect x="7" y="16" width="7" height="2" rx="1" className="text-slate-300" />
     </svg>
 );
 
 export const AdminIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
-      <path fillRule="evenodd" d="M18 8a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clipRule="evenodd" />
+        <path fillRule="evenodd" d="M18 8a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clipRule="evenodd" />
     </svg>
 );
 
@@ -71,5 +71,17 @@ export const ClockIcon: React.FC<{ className?: string }> = ({ className }) => (
 export const UserIcon: React.FC<{ className?: string }> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-6 w-6"} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+);
+
+export const MoonIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
+        <path fillRule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clipRule="evenodd" />
+    </svg>
+);
+
+export const SunIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className || "w-5 h-5"}>
+        <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06l-1.06-1.06a.75.75 0 1 0-1.061 1.06l1.06 1.06Z" />
     </svg>
 );

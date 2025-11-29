@@ -17,10 +17,20 @@ const AppointmentsOverviewTab: React.FC<AppointmentsOverviewTabProps> = ({ teach
     const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
 
     const fetchAppointments = useCallback(async () => {
-        setIsLoading(true);
-        const data = await api.getAllAppointments(teacher);
-        setAppointments(data);
-        setIsLoading(false);
+        try {
+            setIsLoading(true);
+            console.log('Fetching appointments for teacher:', teacher);
+            const data = await api.getAllAppointments(teacher);
+            console.log('Appointments data received:', data);
+            setAppointments(data);
+        } catch (error) {
+            console.error('Error fetching appointments:', error);
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            toast.error('Kon afspraken niet laden');
+            setAppointments([]);
+        } finally {
+            setIsLoading(false);
+        }
     }, [teacher]);
 
     useEffect(() => {
@@ -35,6 +45,29 @@ const AppointmentsOverviewTab: React.FC<AppointmentsOverviewTabProps> = ({ teach
             fetchAppointments();
         } else {
             toast.error('Kon afspraak niet bijwerken');
+        }
+    };
+
+    const [confirmCancelId, setConfirmCancelId] = useState<number | null>(null);
+
+    const handleCancelClick = (slotId: number) => {
+        if (confirmCancelId === slotId) {
+            handleCancel(slotId);
+        } else {
+            setConfirmCancelId(slotId);
+            // Reset confirmation after 3 seconds if not clicked
+            setTimeout(() => setConfirmCancelId(null), 3000);
+        }
+    };
+
+    const handleCancel = async (slotId: number) => {
+        const result = await api.cancelBooking(slotId);
+        if (result.success) {
+            toast.success('Afspraak geannuleerd');
+            setConfirmCancelId(null);
+            fetchAppointments();
+        } else {
+            toast.error('Kon afspraak niet annuleren');
         }
     };
 
@@ -131,12 +164,21 @@ const AppointmentsOverviewTab: React.FC<AppointmentsOverviewTabProps> = ({ teach
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                         <button
                                             onClick={() => setEditingSlot(app)}
                                             className="text-violet-600 hover:text-violet-900 font-semibold hover:underline"
                                         >
                                             Beheren
+                                        </button>
+                                        <button
+                                            onClick={() => handleCancelClick(app.id)}
+                                            className={`${confirmCancelId === app.id
+                                                    ? 'text-red-700 bg-red-50 px-2 py-1 rounded'
+                                                    : 'text-red-600 hover:text-red-900'
+                                                } font-semibold hover:underline transition-all`}
+                                        >
+                                            {confirmCancelId === app.id ? 'Zeker weten?' : 'Annuleren'}
                                         </button>
                                     </td>
                                 </tr>

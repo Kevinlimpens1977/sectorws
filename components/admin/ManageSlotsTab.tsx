@@ -124,6 +124,10 @@ const ManageSlotsTab: React.FC<ManageSlotsTabProps> = ({ teacher }) => {
         }
     };
 
+    const formatTime = (time: string) => {
+        return time.substring(0, 5);
+    };
+
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -181,32 +185,74 @@ const ManageSlotsTab: React.FC<ManageSlotsTabProps> = ({ teacher }) => {
                                     <span className="block text-xl">{date.getDate()}</span>
                                 </div>
                                 <div className="p-2 space-y-2 bg-white h-full min-h-[300px]">
-                                    {ALL_DAY_TIMES.map(time => {
-                                        const slot = slotsForThisDay.find(s => s.time === time);
-                                        const isBooked = !!slot?.student_number;
-                                        const isAvailable = slot?.available ?? false;
+                                    {(() => {
+                                        // Combine predefined times with actual slot times to ensure custom slots are shown
+                                        const existingTimes = slotsForThisDay.map(s => formatTime(s.time));
+                                        const allTimes = Array.from(new Set([...ALL_DAY_TIMES, ...existingTimes])).sort();
 
-                                        let buttonClass = '';
-                                        if (isBooked) {
-                                            buttonClass = 'bg-rose-100 text-rose-800 border-rose-200 cursor-not-allowed opacity-60';
-                                        } else if (isAvailable) {
-                                            buttonClass = 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200';
-                                        } else {
-                                            buttonClass = 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200';
-                                        }
+                                        return allTimes.map(time => {
+                                            const slot = slotsForThisDay.find(s => formatTime(s.time) === time);
+                                            const isBooked = !!slot?.student_number;
+                                            const isAvailable = slot?.available ?? false;
 
-                                        return (
+                                            let buttonClass = '';
+                                            if (isBooked) {
+                                                buttonClass = 'bg-rose-100 text-rose-800 border-rose-200 cursor-not-allowed opacity-60';
+                                            } else if (isAvailable) {
+                                                buttonClass = 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200';
+                                            } else {
+                                                // Only show unbooked/unavailable slots if they are in the standard list
+                                                // Custom slots that are not available/booked shouldn't really exist (they are created as available)
+                                                // But if they do, we show them.
+                                                // However, we only want to show "empty" buttons for standard times.
+                                                if (!ALL_DAY_TIMES.includes(time) && !slot) return null;
+
+                                                buttonClass = 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200';
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={time}
+                                                    onClick={() => handleSlotClick(dateStr, time)}
+                                                    disabled={isBooked}
+                                                    className={`w-full p-2 rounded-lg text-center text-xs font-semibold transition-all border ${buttonClass}`}
+                                                >
+                                                    {time}
+                                                    {isBooked && <span className="block text-[10px] font-normal">Geboekt</span>}
+                                                </button>
+                                            );
+                                        });
+                                    })()}
+
+                                    {/* Custom Slot Input */}
+                                    <div className="pt-2 mt-2 border-t border-slate-100">
+                                        <form
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const form = e.target as HTMLFormElement;
+                                                const input = form.elements.namedItem('time') as HTMLInputElement;
+                                                if (input.value) {
+                                                    handleSlotClick(dateStr, input.value);
+                                                    input.value = '';
+                                                }
+                                            }}
+                                            className="flex gap-1"
+                                        >
+                                            <input
+                                                type="time"
+                                                name="time"
+                                                className="input text-xs py-1 px-2 h-8"
+                                                required
+                                            />
                                             <button
-                                                key={time}
-                                                onClick={() => handleSlotClick(dateStr, time)}
-                                                disabled={isBooked}
-                                                className={`w-full p-2 rounded-lg text-center text-xs font-semibold transition-all border ${buttonClass}`}
+                                                type="submit"
+                                                className="bg-violet-600 text-white rounded-md px-2 hover:bg-violet-700 flex items-center justify-center h-8 w-8"
+                                                title="Tijdslot toevoegen"
                                             >
-                                                {time}
-                                                {isBooked && <span className="block text-[10px] font-normal">Geboekt</span>}
+                                                +
                                             </button>
-                                        );
-                                    })}
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         );

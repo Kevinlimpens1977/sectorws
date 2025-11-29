@@ -3,10 +3,12 @@ import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import StudentPage from './pages/StudentPage';
 import AdminPage from './pages/AdminPage';
-import { AgendaIcon, AdminIcon } from './components/common/Icons';
+import { AgendaIcon, AdminIcon, MoonIcon, SunIcon } from './components/common/Icons';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 const Header: React.FC = () => {
     const location = useLocation();
+    const { theme, toggleTheme } = useTheme();
     const isAdminPage = location.pathname.startsWith('/admin');
 
     return (
@@ -14,33 +16,50 @@ const Header: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="bg-violet-600 rounded-lg p-1.5 transition-transform group-hover:scale-105 group-hover:rotate-3 shadow-sm">
-                            <AgendaIcon className="w-6 h-6 text-white" />
+                        <div className="bg-violet-600 rounded-lg p-1.5 transition-transform group-hover:scale-105 group-hover:rotate-3 shadow-sm overflow-hidden">
+                            <img
+                                src="/logo/paco_planner_profiel.png"
+                                alt="Paco Logo"
+                                className="w-6 h-6 object-cover"
+                            />
                         </div>
                         <span className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
                             Planning Sectorwerkstuk
                         </span>
                     </Link>
-                    <Link
-                        to="/admin"
-                        className={`
-                            inline-flex items-center text-sm font-medium px-4 py-2 rounded-full transition-all duration-200
-                            ${isAdminPage
-                                ? 'bg-violet-100 text-violet-700 ring-1 ring-violet-200'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                            }
-                        `}
-                    >
-                        <AdminIcon className="w-4 h-4 mr-2" />
-                        Docent Login
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                            aria-label="Toggle dark mode"
+                        >
+                            {theme === 'light' ? (
+                                <MoonIcon className="w-5 h-5" />
+                            ) : (
+                                <SunIcon className="w-5 h-5" />
+                            )}
+                        </button>
+                        <Link
+                            to="/admin"
+                            className={`
+                                inline-flex items-center text-sm font-medium px-4 py-2 rounded-full transition-all duration-200
+                                ${isAdminPage
+                                    ? 'bg-violet-100 text-violet-700 ring-1 ring-violet-200'
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }
+                            `}
+                        >
+                            <AdminIcon className="w-4 h-4 mr-2" />
+                            Docent Login
+                        </Link>
+                    </div>
                 </div>
             </div>
         </header>
     );
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     return (
         <HashRouter>
             <div className="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-900">
@@ -90,6 +109,14 @@ const App: React.FC = () => {
                 </footer>
             </div>
         </HashRouter>
+    );
+};
+
+const App: React.FC = () => {
+    return (
+        <ThemeProvider>
+            <AppContent />
+        </ThemeProvider>
     );
 }
 
