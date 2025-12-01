@@ -19,9 +19,9 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({ date, time, o
     });
 
     const handleDownloadCalendar = () => {
-        // Calculate end time (assuming 30 min slots)
+        // Calculate end time (assuming 20 min slots)
         const startDate = new Date(`${date}T${time}:00`);
-        const endDate = new Date(startDate.getTime() + 30 * 60000);
+        const endDate = new Date(startDate.getTime() + 20 * 60000);
 
         generateICS({
             title: 'Presentatie Sectorwerkstuk',

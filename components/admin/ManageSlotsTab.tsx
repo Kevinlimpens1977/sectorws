@@ -42,8 +42,8 @@ const ManageSlotsTab: React.FC<ManageSlotsTabProps> = ({ teacher }) => {
 
     const ALL_DAY_TIMES: string[] = [];
     for (let hour = 9; hour < 17; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-            if (hour === 16 && minute === 30) continue;
+        for (let minute = 0; minute < 60; minute += 20) {
+            if (hour === 16 && minute === 40) continue;
             const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
             ALL_DAY_TIMES.push(timeString);
         }
